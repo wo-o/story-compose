@@ -1,0 +1,20 @@
+# Ignore Docker-related files
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# Ignore Docker volumes
+volumes/
+
+# Ignore Docker images
+*.tar
+
+# Ignore Docker logs
+*.log
+
+# Ignore environment variable files
+.env
+.env.*
+
+# Ignore build artifacts
+build/
