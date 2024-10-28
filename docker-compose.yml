@@ -1,0 +1,106 @@
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+
+services:
+  story-geth:
+    container_name: story-geth
+    image: jinnuae40/story-geth:v0.10.0
+    restart: unless-stopped
+    stop_grace_period: 50s
+    command:
+      - --${NETWORK}
+      - --syncmode=full
+      - --http
+      - --http.vhosts=*
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=web3,eth,txpool,net,engine,debug
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.origins=*
+      - --ws.api=web3,eth,txpool,net,engine,debug
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --port=30304
+      - --discovery.port=30303
+      - --metrics
+      - --metrics.port=6060
+      - --metrics.addr=0.0.0.0
+    ports:
+      - 6060:6060
+      - 8545:8545
+      - 8546:8546
+      - 8551:8551
+      - '30304:30304/tcp'
+      - '30303:30303/udp'
+    volumes:
+      - db-story-geth:/root/.story/geth
+    <<: *logging
+
+  story:
+    container_name: story
+    image: jinnuae40/story:v0.12.0
+    restart: unless-stopped
+    stop_grace_period: 50s
+    depends_on:
+      - story-geth
+    environment:
+      - NETWORK=${NETWORK}
+    command:
+      - --engine-endpoint=http://story-geth:8551
+      - --api-enable
+      - --api-address=0.0.0.0:1317
+      - --engine-jwt-file=/root/.story/geth/${NETWORK}/geth/jwtsecret
+    ports:
+      - 9545:8545
+      - 7300:7300
+      - 9003:9003/tcp
+      - 9003:9003/udp
+    volumes:
+      - db-story-geth:/root/.story/geth
+      - db-story-data:/root/.story/story/data
+      - ./config.toml:/root/.story/story/config/config.toml
+    <<: *logging
+
+  story-prometheus:
+    container_name: story-prometheus
+    image: prom/prometheus:v2.55.0
+    restart: unless-stopped
+    stop_grace_period: 50s
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - db-story-prometheus:/prometheus
+    profiles:
+      - monitoring
+
+  story-grafana:
+    container_name: story-grafana
+    image: grafana/grafana:11.2.3
+    restart: unless-stopped
+    stop_grace_period: 50s
+    depends_on:
+      - story-prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - db-story-grafana:/var/lib/grafana
+      - ./monitoring/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana.ini:/etc/grafana/grafana.ini
+    profiles:
+      - monitoring
+
+volumes:
+  db-story-geth:
+  db-story-data:
+  db-story-prometheus:
+  db-story-grafana:

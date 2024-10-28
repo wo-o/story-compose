@@ -1,0 +1,12 @@
+RPC_URL=$1
+if [ -z "$RPC_URL" ]; then
+    RPC_URL="http://localhost:8545"
+fi
+echo $RPC_URL
+BLOCK_NUM=$(curl "$RPC_URL" \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params": [],"id":1}' -s | jq -r .result)
+
+echo $BLOCK_NUM
+printf "%d\n" $BLOCK_NUM

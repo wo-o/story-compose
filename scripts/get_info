@@ -1,0 +1,14 @@
+NETWORK=$1
+
+enode=$(docker exec -it story-geth geth --exec 'console.log(admin.nodeInfo.enode);' attach /root/.story/geth/${NETWORK}/geth.ipc)
+peers=$(docker exec -it story-geth geth --exec 'console.log(admin.peers);' attach /root/.story/geth/${NETWORK}/geth.ipc)
+
+enode=$(echo "$enode" | tr -d '\r')
+peers=$(echo "$peers" | tr -d '\r')
+
+# Remove the 'null' string from the output
+enode=$(echo "$enode" | sed 's/null//g')
+peers=$(echo "$peers" | sed 's/null//g')
+
+echo "Enode: $enode"
+echo "Peers: $peers"
