@@ -1,3 +1,14 @@
 #!/bin/bash
 NETWORK=$1
+
+if [ -z "$NETWORK" ]; then
+  echo "Error: No NETWORK argument provided."
+  exit 1
+fi
+
+if [ "$NETWORK" != "iliad" ] && [ "$NETWORK" != "odyssey" ]; then
+  echo "Error: NETWORK must be either 'iliad' or 'odyssey'."
+  exit 1
+fi
+
 docker exec -it story-geth geth attach /root/.story/geth/${NETWORK}/geth.ipc

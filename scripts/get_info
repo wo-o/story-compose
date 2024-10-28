@@ -1,14 +1,28 @@
 NETWORK=$1
 
-enode=$(docker exec -it story-geth geth --exec 'console.log(admin.nodeInfo.enode);' attach /root/.story/geth/${NETWORK}/geth.ipc)
-peers=$(docker exec -it story-geth geth --exec 'console.log(admin.peers);' attach /root/.story/geth/${NETWORK}/geth.ipc)
+if [ -z "$NETWORK" ]; then
+  echo "Error: No NETWORK argument provided."
+  exit 1
+fi
 
-enode=$(echo "$enode" | tr -d '\r')
-peers=$(echo "$peers" | tr -d '\r')
+if [ "$NETWORK" != "iliad" ] && [ "$NETWORK" != "odyssey" ]; then
+  echo "Error: NETWORK must be either 'iliad' or 'odyssey'."
+  exit 1
+fi
+
+enode=$(docker exec -it story-geth geth --exec 'console.log(admin.nodeInfo.enode);' attach /root/.story/geth/${NETWORK}/geth.ipc)
+peers=$(docker exec -it story-geth geth --exec 'console.log(JSON.stringify(admin.peers));' attach /root/.story/geth/${NETWORK}/geth.ipc)
+
+# Remove carriage returns and newlines
+enode=$(echo "$enode" | tr -d '\r\n')
+peers=$(echo "$peers" | tr -d '\r\n')
 
 # Remove the 'null' string from the output
 enode=$(echo "$enode" | sed 's/null//g')
 peers=$(echo "$peers" | sed 's/null//g')
 
-echo "Enode: $enode"
-echo "Peers: $peers"
+
+echo "==== Enode\n$enode"
+echo ""
+parsed_peers=$(echo "$peers" | jq -r 'map("ID: \(.id)\n  Name: \(.name)\n  Network: \(.network.remoteAddress)\n") | join("\n")' 2> /dev/null)
+echo "==== Peers\n$parsed_peers"

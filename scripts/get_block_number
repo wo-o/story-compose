@@ -1,4 +1,5 @@
 RPC_URL=$1
+
 if [ -z "$RPC_URL" ]; then
     RPC_URL="http://localhost:8545"
 fi
