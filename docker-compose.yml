@@ -8,7 +8,7 @@ x-logging: &logging
 services:
   story-geth:
     container_name: story-geth
-    image: jinnuae40/story-geth:v0.10.0
+    image: jinnuae40/story-geth:${IMAGE_TAG__STORY_GETH}
     restart: unless-stopped
     stop_grace_period: 50s
     command:
@@ -45,7 +45,7 @@ services:
 
   story:
     container_name: story
-    image: jinnuae40/story:v0.12.0
+    image: jinnuae40/story:${IMAGE_TAG__STORY}
     restart: unless-stopped
     stop_grace_period: 50s
     depends_on:
@@ -70,7 +70,7 @@ services:
 
   story-prometheus:
     container_name: story-prometheus
-    image: prom/prometheus:v2.55.0
+    image: prom/prometheus:${IMAGE_TAG__PROMETHEUS}
     restart: unless-stopped
     stop_grace_period: 50s
     command:
@@ -85,7 +85,7 @@ services:
 
   story-grafana:
     container_name: story-grafana
-    image: grafana/grafana:11.2.3
+    image: grafana/grafana:${IMAGE_TAG__GRAFANA}
     restart: unless-stopped
     stop_grace_period: 50s
     depends_on:
