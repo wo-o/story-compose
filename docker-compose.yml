@@ -58,10 +58,10 @@ services:
       - --api-address=0.0.0.0:1317
       - --engine-jwt-file=/root/.story/geth/${NETWORK}/geth/jwtsecret
     ports:
-      - 9545:8545
-      - 7300:7300
-      - 9003:9003/tcp
-      - 9003:9003/udp
+      - 1317:1317
+      - 26656:26656
+      - 26657:26657
+      - 26660:26660
     volumes:
       - db-story-geth:/root/.story/geth
       - db-story-data:/root/.story/story/data
