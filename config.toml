@@ -208,7 +208,7 @@ laddr = "tcp://0.0.0.0:26656"
 # Address to advertise to peers for them to dial. If empty, will use the same
 # port as the laddr, and will introspect on the listener to figure out the
 # address. IP and port are required. Example: 159.89.10.97:26656
-external_address = ""
+external_address = "175.193.148.16:26656"
 
 # Comma separated list of seed nodes to connect to
 seeds = "75ac7b193e93e928d6c83c273397517cb60603c0@b1.odyssey-testnet.storyrpc.io:26656,6adbd1e974d6bb1c353aabbc7abef72c81e536f5@b2.odyssey-testnet.storyrpc.io:26656"

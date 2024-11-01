@@ -8,7 +8,7 @@ x-logging: &logging
 services:
   story-geth:
     container_name: story-geth
-    image: jinnuae40/story-geth:${IMAGE_TAG__STORY_GETH}
+    image: piplabs/story-geth:${IMAGE_TAG__STORY_GETH}
     restart: unless-stopped
     stop_grace_period: 50s
     command:
@@ -20,9 +20,9 @@ services:
       - --http.port=8545
       - --http.api=web3,eth,txpool,net,engine,debug
       - --ws
+      - --ws.origins=*
       - --ws.addr=0.0.0.0
       - --ws.port=8546
-      - --ws.origins=*
       - --ws.api=web3,eth,txpool,net,engine,debug
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
@@ -45,7 +45,7 @@ services:
 
   story:
     container_name: story
-    image: jinnuae40/story:${IMAGE_TAG__STORY}
+    image: piplabs/story:${IMAGE_TAG__STORY}
     restart: unless-stopped
     stop_grace_period: 50s
     depends_on:
