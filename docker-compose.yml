@@ -18,12 +18,12 @@ services:
       - --http.vhosts=*
       - --http.addr=0.0.0.0
       - --http.port=8545
-      - --http.api=web3,eth,txpool,net,engine,debug
+      - --http.api=web3,eth,txpool,net,engine,debug,admin
       - --ws
       - --ws.origins=*
       - --ws.addr=0.0.0.0
       - --ws.port=8546
-      - --ws.api=web3,eth,txpool,net,engine,debug
+      - --ws.api=web3,eth,txpool,net,engine,debug,admin
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
       - --authrpc.vhosts=*
@@ -52,11 +52,15 @@ services:
       - story-geth
     environment:
       - NETWORK=${NETWORK}
+    entrypoint:
+      - sh
+      - -c
+      - story init --network $NETWORK && story run "$$@"
     command:
-      - --engine-endpoint=http://story-geth:8551
       - --api-enable
       - --api-address=0.0.0.0:1317
       - --engine-jwt-file=/root/.story/geth/${NETWORK}/geth/jwtsecret
+      - --engine-endpoint=http://story-geth:8551
     ports:
       - 1317:1317
       - 26656:26656
@@ -65,7 +69,8 @@ services:
     volumes:
       - db-story-geth:/root/.story/geth
       - db-story-data:/root/.story/story/data
-      - ./config.toml:/root/.story/story/config/config.toml
+      - ./config/story/config.toml:/root/.story/story/config/config.toml
+      - ./config/story/story.toml:/root/.story/story/config/story.toml
     <<: *logging
 
   story-prometheus:
