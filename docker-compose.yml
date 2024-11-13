@@ -50,13 +50,13 @@ services:
 
   story-node:
     container_name: story-node
-    image: piplabs/story:${IMAGE_TAG__STORY}
+    image: piplabs/story-node:${IMAGE_TAG__STORY_NODE}
     restart: unless-stopped
     stop_grace_period: 50s
     depends_on:
       - story-geth
     entrypoint: >
-      sh -c 'story init --network $NETWORK && story run "$$@"'
+      sh -c 'cosmovisor run init --network $NETWORK && cosmovisor run run "$$@"'
     command:
       - --api-enable
       - --api-address=0.0.0.0:1317
