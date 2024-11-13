@@ -11,7 +11,11 @@ services:
     image: piplabs/story-geth:${IMAGE_TAG__STORY_GETH}
     restart: unless-stopped
     stop_grace_period: 50s
+    entrypoint: >
+      sh -c 'geth "$$@"'
     command:
+      - --datadir=/root/.story/geth/data
+      - --config=/root/.story/geth/config/geth.toml
       - --${NETWORK}
       - --syncmode=full
       - --http
@@ -40,26 +44,23 @@ services:
       - '30304:30304/tcp'
       - '30303:30303/udp'
     volumes:
-      - db-story-geth:/root/.story/geth
+      - ./config/geth/geth.toml:/root/.story/geth/config/geth.toml
+      - db-story-geth-data:/root/.story/geth
     <<: *logging
 
-  story:
-    container_name: story
+  story-node:
+    container_name: story-node
     image: piplabs/story:${IMAGE_TAG__STORY}
     restart: unless-stopped
     stop_grace_period: 50s
     depends_on:
       - story-geth
-    environment:
-      - NETWORK=${NETWORK}
-    entrypoint:
-      - sh
-      - -c
-      - story init --network $NETWORK && story run "$$@"
+    entrypoint: >
+      sh -c 'story init --network $NETWORK && story run "$$@"'
     command:
       - --api-enable
       - --api-address=0.0.0.0:1317
-      - --engine-jwt-file=/root/.story/geth/${NETWORK}/geth/jwtsecret
+      - --engine-jwt-file=/root/.story/geth/data/jwtsecret
       - --engine-endpoint=http://story-geth:8551
     ports:
       - 1317:1317
@@ -67,8 +68,10 @@ services:
       - 26657:26657
       - 26660:26660
     volumes:
-      - db-story-geth:/root/.story/geth
-      - db-story-data:/root/.story/story/data
+      - db-story-geth-data:/root/.story/geth
+      - db-story-node-data:/root/.story/story/data
+      - db-story-node-config:/root/.story/story/config
+
       - ./config/story/config.toml:/root/.story/story/config/config.toml
       - ./config/story/story.toml:/root/.story/story/config/story.toml
     <<: *logging
@@ -105,7 +108,8 @@ services:
       - monitoring
 
 volumes:
-  db-story-geth:
-  db-story-data:
+  db-story-geth-data:
+  db-story-node-data:
+  db-story-node-config:
   db-story-prometheus:
   db-story-grafana:
